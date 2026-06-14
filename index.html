@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALGERisk Campus</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root {
+    --navy: #1F3864;
+    --blue: #2E75B6;
+    --teal: #1F6B75;
+    --teal-light: #E8F4F5;
+    --navy-light: #EEF1F7;
+    --text: #1a1a2e;
+    --text-muted: #5a6a7a;
+    --border: rgba(31,56,100,0.12);
+    --bg: #f7f9fb;
+    --white: #ffffff;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ===== LOGIN SCREEN ===== */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(145deg, var(--navy) 0%, #2a4f8a 50%, var(--teal) 100%);
+    padding: 2rem;
+  }
+
+  .login-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 3rem 2.5rem;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+  }
+
+  .login-logo {
+    width: 72px;
+    height: 72px;
+    background: var(--navy);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+  }
+
+  .login-logo svg { width: 40px; height: 40px; }
+
+  .login-card h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.25rem;
+  }
+
+  .login-card .tagline {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .login-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1.75rem 0;
+  }
+
+  .login-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 1.25rem;
+    line-height: 1.6;
+  }
+
+  #google-signin-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 0.85rem 1.5rem;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  #google-signin-btn:hover {
+    border-color: var(--blue);
+    background: #f0f5ff;
+    box-shadow: 0 2px 8px rgba(46,117,182,0.15);
+  }
+
+  .google-icon { width: 20px; height: 20px; }
+
+  /* ===== APP SHELL ===== */
+  #app-screen { display: none; min-height: 100vh; }
+
+  header {
+    background: var(--navy);
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .header-brand-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-badge {
+    background: var(--teal);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .user-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.3);
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  .user-name {
+    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+  }
+
+  .btn-logout {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-logout:hover { background: rgba(255,255,255,0.2); }
+
+  /* ===== MAIN LAYOUT ===== */
+  .main-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 60px);
+  }
+
+  /* ===== SIDEBAR ===== */
+  aside {
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-section {
+    padding: 0 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .course-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.65rem 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+
+  .course-item:hover { background: var(--navy-light); }
+
+  .course-item.active {
+    background: var(--navy-light);
+    border-left: 3px solid var(--blue);
+    padding-left: calc(0.75rem - 3px);
+  }
+
+  .course-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--teal);
+    flex-shrink: 0;
+  }
+
+  .course-item.active .course-dot { background: var(--blue); }
+
+  .course-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  main { padding: 2rem; overflow-y: auto; }
+
+  .page-header {
+    margin-bottom: 2rem;
+  }
+
+  .page-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.25rem;
+  }
+
+  .page-header p {
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 1.75rem;
+  }
+
+  .tab {
+    padding: 0.6rem 1.25rem;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    border-radius: 6px 6px 0 0;
+    transition: all 0.15s;
+  }
+
+  .tab:hover { color: var(--navy); background: var(--navy-light); }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  /* ===== TAB PANELS ===== */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ===== MATERIALS GRID ===== */
+  .materials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+
+  .material-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-decoration: none;
+    display: block;
+  }
+
+  .material-card:hover {
+    border-color: var(--blue);
+    box-shadow: 0 4px 16px rgba(46,117,182,0.12);
+    transform: translateY(-2px);
+  }
+
+  .material-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.875rem;
+    font-size: 20px;
+  }
+
+  .material-icon.doc { background: #E8F4FF; }
+  .material-icon.pdf { background: #FFECEC; }
+  .material-icon.link { background: var(--teal-light); }
+  .material-icon.form { background: #FFF3E8; }
+  .material-icon.video { background: #FFF0F0; }
+
+  .material-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 0.35rem;
+    line-height: 1.35;
+  }
+
+  .material-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .material-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-top: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .tag-doc { background: #E8F4FF; color: #1a5fa8; }
+  .tag-pdf { background: #FFECEC; color: #a83232; }
+  .tag-link { background: var(--teal-light); color: var(--teal); }
+
+  /* ===== VIDEO GRID ===== */
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .video-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .video-card:hover {
+    border-color: var(--blue);
+    box-shadow: 0 4px 16px rgba(46,117,182,0.12);
+    transform: translateY(-2px);
+  }
+
+  .video-thumb {
+    position: relative;
+    padding-top: 56.25%;
+    background: var(--navy);
+    overflow: hidden;
+  }
+
+  .video-thumb img {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+
+  .play-overlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px; height: 48px;
+    background: rgba(255,255,255,0.92);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s;
+  }
+
+  .video-card:hover .play-overlay { transform: translate(-50%, -50%) scale(1.1); }
+
+  .play-triangle {
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 8px 0 8px 16px;
+    border-color: transparent transparent transparent var(--navy);
+    margin-left: 3px;
+  }
+
+  .video-info { padding: 1rem; }
+
+  .video-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 0.35rem;
+    line-height: 1.4;
+  }
+
+  .video-meta { font-size: 12px; color: var(--text-muted); }
+
+  /* ===== VIDEO MODAL ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,20,40,0.75);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+
+  .modal-overlay.active { display: flex; }
+
+  .modal-box {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 840px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--navy);
+    color: white;
+  }
+
+  .modal-title { font-size: 15px; font-weight: 600; }
+
+  .modal-close {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: background 0.15s;
+  }
+
+  .modal-close:hover { background: rgba(255,255,255,0.3); }
+
+  .video-embed {
+    position: relative;
+    padding-top: 56.25%;
+    background: #000;
+  }
+
+  .video-embed iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: none;
+  }
+
+  /* ===== WELCOME CARD ===== */
+  .welcome-card {
+    background: linear-gradient(135deg, var(--navy), var(--teal));
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    color: white;
+    margin-bottom: 2rem;
+  }
+
+  .welcome-card h2 { font-size: 20px; margin-bottom: 0.5rem; }
+  .welcome-card p { font-size: 14px; opacity: 0.85; }
+
+  /* ===== STATS ROW ===== */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+
+  /* ===== LOADING / EMPTY STATES ===== */
+  .loading-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+  }
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .empty-icon { font-size: 48px; margin-bottom: 1rem; opacity: 0.5; }
+
+  /* ===== ANNOUNCE ===== */
+  .announce {
+    background: var(--navy-light);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 8px 8px 0;
+    padding: 0.875rem 1rem;
+    font-size: 13px;
+    color: var(--navy);
+    margin-bottom: 1.5rem;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    .main-layout { grid-template-columns: 1fr; }
+    aside { display: none; }
+    main { padding: 1rem; }
+    .stats-row { grid-template-columns: 1fr; }
+    .video-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="8" width="22" height="24" rx="3" fill="white" opacity="0.9"/>
+        <rect x="14" y="4" width="22" height="24" rx="3" fill="white" opacity="0.4"/>
+        <rect x="8" y="16" width="12" height="2" rx="1" fill="#1F3864"/>
+        <rect x="8" y="20" width="10" height="2" rx="1" fill="#1F3864"/>
+        <rect x="8" y="24" width="8" height="2" rx="1" fill="#1F3864"/>
+      </svg>
+    </div>
+    <h1>ALGERisk Campus</h1>
+    <p class="tagline">Plataforma de Capacitación · Risk &amp; Compliance</p>
+
+    <hr class="login-divider">
+
+    <button id="google-signin-btn" onclick="signInWithGoogle()">
+      <svg class="google-icon" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Iniciar sesión con Google
+    </button>
+
+    <p class="login-note">
+      Usa la cuenta Google con la que fuiste inscrito en el curso.<br>
+      Solo usuarios autorizados por ALGERisk tienen acceso.
+    </p>
+  </div>
+</div>
+
+<!-- ===== APP SCREEN ===== -->
+<div id="app-screen">
+  <header>
+    <div class="header-brand">
+      <div class="header-brand-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="5" width="14" height="16" rx="2" fill="white" opacity="0.9"/>
+          <rect x="7" y="3" width="14" height="16" rx="2" fill="white" opacity="0.35"/>
+          <rect x="6" y="10" width="8" height="1.5" rx="0.75" fill="#1F3864"/>
+          <rect x="6" y="13" width="6" height="1.5" rx="0.75" fill="#1F3864"/>
+        </svg>
+      </div>
+      ALGERisk Campus
+      <span class="header-badge">e-Learning</span>
+    </div>
+    <div class="header-right">
+      <span class="user-name" id="user-display-name"></span>
+      <div class="user-avatar">
+        <img id="user-photo" src="" alt="foto de usuario">
+      </div>
+      <button class="btn-logout" onclick="signOut()">Salir</button>
+    </div>
+  </header>
+
+  <div class="main-layout">
+    <!-- SIDEBAR -->
+    <aside>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Mis cursos</div>
+        <div id="courses-list">
+          <div class="loading-state" style="padding: 1.5rem 0.5rem;">
+            <div class="spinner" style="width:24px;height:24px;border-width:2px;"></div>
+            <p style="font-size:12px;margin-top:8px;">Cargando...</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main id="main-content">
+      <!-- Welcome state (antes de seleccionar curso) -->
+      <div id="welcome-view">
+        <div class="welcome-card">
+          <h2>👋 Bienvenido al Campus ALGERisk</h2>
+          <p>Selecciona un curso en el panel izquierdo para acceder a los materiales y videos de capacitación.</p>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-number" id="stat-courses">—</div>
+            <div class="stat-label">Cursos activos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="stat-materials">—</div>
+            <div class="stat-label">Materiales disponibles</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="stat-videos">—</div>
+            <div class="stat-label">Videos del curso</div>
+          </div>
+        </div>
+        <div class="announce">
+          📢 <strong>Acceso seguro:</strong> Todo el material está protegido. Solo participantes inscritos pueden visualizar el contenido.
+        </div>
+      </div>
+
+      <!-- Course view (al seleccionar curso) -->
+      <div id="course-view" style="display:none;">
+        <div class="page-header">
+          <h2 id="course-title">Nombre del curso</h2>
+          <p id="course-section" style="color: var(--text-muted); font-size:13px;"></p>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab('materials')">📄 Materiales</div>
+          <div class="tab" onclick="switchTab('videos')">🎬 Videos</div>
+        </div>
+
+        <div id="tab-materials" class="tab-panel active">
+          <div id="materials-container" class="materials-grid">
+            <div class="loading-state" style="grid-column:1/-1;">
+              <div class="spinner"></div>
+              <p>Cargando materiales...</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-videos" class="tab-panel">
+          <div id="videos-container" class="video-grid">
+            <div class="loading-state" style="grid-column:1/-1;">
+              <div class="spinner"></div>
+              <p>Cargando videos...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ===== VIDEO MODAL ===== -->
+<div class="modal-overlay" id="video-modal" onclick="closeModal(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-video-title">Video</span>
+      <button class="modal-close" onclick="closeVideoModal()">✕</button>
+    </div>
+    <div class="video-embed">
+      <iframe id="modal-iframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+const CLIENT_ID = '36034662851-al2tpmfjc6dbpo6nl0k4ainnj3gc9qb7.apps.googleusercontent.com';
+const SCOPES = [
+  'https://www.googleapis.com/auth/classroom.courses.readonly',
+  'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
+  'https://www.googleapis.com/auth/classroom.announcements.readonly',
+  'https://www.googleapis.com/auth/youtube.readonly',
+  'openid',
+  'profile',
+  'email'
+].join(' ');
+
+let tokenClient;
+let accessToken = null;
+let currentCourseId = null;
+let allCourses = [];
+
+// ===== GOOGLE IDENTITY SERVICES =====
+function initGoogleAuth() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: handleTokenResponse,
+    error_callback: handleAuthError
+  });
+}
+
+function signInWithGoogle() {
+  if (!tokenClient) {
+    alert('Error: Google Identity Services no cargó correctamente. Recarga la página.');
+    return;
+  }
+  tokenClient.requestAccessToken({ prompt: 'consent' });
+}
+
+async function handleTokenResponse(response) {
+  if (response.error) {
+    console.error('Auth error:', response);
+    alert('Error de autenticación: ' + (response.error_description || response.error));
+    return;
+  }
+  accessToken = response.access_token;
+  await loadUserInfo();
+  showApp();
+  await loadCourses();
+}
+
+function handleAuthError(error) {
+  console.error('Auth error:', error);
+  if (error.type !== 'popup_closed') {
+    alert('Error al iniciar sesión. Por favor intenta nuevamente.');
+  }
+}
+
+function signOut() {
+  if (accessToken) {
+    google.accounts.oauth2.revoke(accessToken, () => {});
+  }
+  accessToken = null;
+  currentCourseId = null;
+  allCourses = [];
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('modal-iframe').src = '';
+}
+
+// ===== USER INFO =====
+async function loadUserInfo() {
+  try {
+    const res = await gFetch('https://www.googleapis.com/oauth2/v3/userinfo');
+    document.getElementById('user-display-name').textContent = res.given_name || res.name || '';
+    if (res.picture) document.getElementById('user-photo').src = res.picture;
+  } catch (e) {
+    console.error('Error loading user info:', e);
+  }
+}
+
+// ===== SHOW APP =====
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+}
+
+// ===== GENERIC FETCH =====
+async function gFetch(url) {
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${accessToken}` }
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+// ===== LOAD COURSES =====
+async function loadCourses() {
+  try {
+    const data = await gFetch('https://classroom.googleapis.com/v1/courses?courseStates=ACTIVE&pageSize=20');
+    allCourses = data.courses || [];
+
+    const list = document.getElementById('courses-list');
+    document.getElementById('stat-courses').textContent = allCourses.length;
+
+    if (allCourses.length === 0) {
+      list.innerHTML = '<p style="font-size:12px;color:var(--text-muted);padding:0.5rem;">No hay cursos activos.</p>';
+      return;
+    }
+
+    list.innerHTML = allCourses.map((c, i) =>
+      `<div class="course-item" onclick="selectCourse('${c.id}', ${i})" id="ci-${i}">
+        <span class="course-dot"></span>
+        <span class="course-name">${c.name}</span>
+      </div>`
+    ).join('');
+
+    // Auto-select first
+    if (allCourses.length > 0) selectCourse(allCourses[0].id, 0);
+
+  } catch (e) {
+    console.error('Error loading courses:', e);
+    document.getElementById('courses-list').innerHTML =
+      `<p style="font-size:12px;color:#c0392b;padding:0.5rem;">⚠ Error: ${e.message}</p>`;
+  }
+}
+
+// ===== SELECT COURSE =====
+async function selectCourse(courseId, idx) {
+  currentCourseId = courseId;
+
+  // Update sidebar active state
+  document.querySelectorAll('.course-item').forEach(el => el.classList.remove('active'));
+  const ci = document.getElementById('ci-' + idx);
+  if (ci) ci.classList.add('active');
+
+  const course = allCourses[idx];
+  document.getElementById('welcome-view').style.display = 'none';
+  document.getElementById('course-view').style.display = 'block';
+  document.getElementById('course-title').textContent = course.name;
+  document.getElementById('course-section').textContent = course.section
+    ? `Sección: ${course.section}` : course.description || '';
+
+  // Reset tabs
+  switchTab('materials');
+  loadMaterials(courseId);
+  loadVideos(courseId);
+}
+
+// ===== TABS =====
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t, i) =>
+    t.classList.toggle('active', (i === 0 && tab === 'materials') || (i === 1 && tab === 'videos'))
+  );
+  document.getElementById('tab-materials').classList.toggle('active', tab === 'materials');
+  document.getElementById('tab-videos').classList.toggle('active', tab === 'videos');
+}
+
+// ===== LOAD MATERIALS =====
+async function loadMaterials(courseId) {
+  const container = document.getElementById('materials-container');
+  container.innerHTML = '<div class="loading-state" style="grid-column:1/-1;"><div class="spinner"></div><p>Cargando materiales...</p></div>';
+
+  try {
+    const [annRes, matRes] = await Promise.allSettled([
+      gFetch(`https://classroom.googleapis.com/v1/courses/${courseId}/announcements?pageSize=10`),
+      gFetch(`https://classroom.googleapis.com/v1/courses/${courseId}/courseWorkMaterials?pageSize=30`)
+    ]);
+
+    const announcements = annRes.status === 'fulfilled' ? (annRes.value.announcements || []) : [];
+    const materials = matRes.status === 'fulfilled' ? (matRes.value.courseWorkMaterial || []) : [];
+
+    const items = [...announcements.map(a => ({...a, _type: 'announcement'})),
+                   ...materials.map(m => ({...m, _type: 'material'}))];
+
+    document.getElementById('stat-materials').textContent = items.length;
+
+    if (items.length === 0) {
+      container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">📂</div><p>No hay materiales disponibles en este curso.</p></div>';
+      return;
+    }
+
+    container.innerHTML = items.map(item => renderMaterialCard(item)).join('');
+
+  } catch (e) {
+    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><p style="color:#c0392b;">⚠ Error cargando materiales: ${e.message}</p></div>`;
+  }
+}
+
+function renderMaterialCard(item) {
+  const materials = item.materials || [];
+  const title = item.title || item.text?.substring(0, 60) + '...' || 'Sin título';
+  const date = item.updateTime ? new Date(item.updateTime).toLocaleDateString('es-ES', {day:'2-digit',month:'short',year:'numeric'}) : '';
+
+  let cardsHtml = '';
+
+  if (materials.length > 0) {
+    materials.forEach(mat => {
+      let icon = '📎', tagClass = 'tag-link', tagLabel = 'Material', href = '#', typeClass = 'link';
+      if (mat.driveFile) {
+        const f = mat.driveFile.driveFile;
+        const mime = f.mimeType || '';
+        if (mime.includes('document')) { icon='📄'; tagClass='tag-doc'; tagLabel='Doc'; typeClass='doc'; }
+        else if (mime.includes('presentation')) { icon='📊'; tagClass='tag-doc'; tagLabel='Slides'; typeClass='doc'; }
+        else if (mime.includes('spreadsheet')) { icon='📋'; tagClass='tag-doc'; tagLabel='Hoja'; typeClass='doc'; }
+        else if (mime.includes('pdf') || f.title?.endsWith('.pdf')) { icon='📕'; tagClass='tag-pdf'; tagLabel='PDF'; typeClass='pdf'; }
+        else { icon='📁'; tagClass='tag-doc'; tagLabel='Archivo'; typeClass='doc'; }
+        href = f.alternateLink || '#';
+        cardsHtml += materialCardHtml(icon, typeClass, f.title || title, date, tagClass, tagLabel, href);
+      } else if (mat.link) {
+        icon='🔗'; tagClass='tag-link'; tagLabel='Enlace'; typeClass='link';
+        href = mat.link.url;
+        cardsHtml += materialCardHtml(icon, typeClass, mat.link.title || href, date, tagClass, tagLabel, href);
+      } else if (mat.youtubeVideo) {
+        icon='🎬'; tagClass='tag-pdf'; tagLabel='Video'; typeClass='video';
+        href = `https://www.youtube.com/watch?v=${mat.youtubeVideo.id}`;
+        cardsHtml += materialCardHtml(icon, typeClass, mat.youtubeVideo.title || 'Video YouTube', date, tagClass, tagLabel, href);
+      } else if (mat.form) {
+        icon='📝'; tagClass='tag-link'; tagLabel='Formulario'; typeClass='form';
+        href = mat.form.formUrl;
+        cardsHtml += materialCardHtml(icon, typeClass, mat.form.title || 'Formulario', date, tagClass, tagLabel, href);
+      }
+    });
+  } else {
+    cardsHtml = materialCardHtml('📋', 'link', title, date, 'tag-link', 'Anuncio', '#');
+  }
+
+  return cardsHtml;
+}
+
+function materialCardHtml(icon, typeClass, title, date, tagClass, tagLabel, href) {
+  return `<a class="material-card" href="${href}" target="_blank" rel="noopener noreferrer">
+    <div class="material-icon ${typeClass}">${icon}</div>
+    <div class="material-title">${title}</div>
+    <div class="material-meta">${date}</div>
+    <span class="material-tag ${tagClass}">${tagLabel}</span>
+  </a>`;
+}
+
+// ===== LOAD VIDEOS =====
+async function loadVideos(courseId) {
+  const container = document.getElementById('videos-container');
+  container.innerHTML = '<div class="loading-state" style="grid-column:1/-1;"><div class="spinner"></div><p>Cargando videos...</p></div>';
+
+  try {
+    // Extract YouTube videos from course materials
+    const matRes = await gFetch(
+      `https://classroom.googleapis.com/v1/courses/${courseId}/courseWorkMaterials?pageSize=50`
+    );
+    const materials = matRes.courseWorkMaterial || [];
+    const ytVideos = [];
+
+    materials.forEach(mat => {
+      (mat.materials || []).forEach(m => {
+        if (m.youtubeVideo) {
+          ytVideos.push({
+            id: m.youtubeVideo.id,
+            title: mat.title || m.youtubeVideo.title || 'Video',
+            description: mat.description || '',
+            updateTime: mat.updateTime
+          });
+        }
+      });
+    });
+
+    document.getElementById('stat-videos').textContent = ytVideos.length;
+
+    if (ytVideos.length === 0) {
+      container.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">🎬</div><p>No hay videos de YouTube vinculados a este curso.</p></div>';
+      return;
+    }
+
+    container.innerHTML = ytVideos.map(v => renderVideoCard(v)).join('');
+
+  } catch (e) {
+    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><p style="color:#c0392b;">⚠ Error cargando videos: ${e.message}</p></div>`;
+  }
+}
+
+function renderVideoCard(video) {
+  const thumb = `https://img.youtube.com/vi/${video.id}/mqdefault.jpg`;
+  const date = video.updateTime
+    ? new Date(video.updateTime).toLocaleDateString('es-ES', {day:'2-digit',month:'short',year:'numeric'})
+    : '';
+  return `<div class="video-card" onclick="openVideo('${video.id}', '${escapeHtml(video.title)}')">
+    <div class="video-thumb">
+      <img src="${thumb}" alt="${escapeHtml(video.title)}" onerror="this.style.display='none'">
+      <div class="play-overlay">
+        <div class="play-triangle"></div>
+      </div>
+    </div>
+    <div class="video-info">
+      <div class="video-title">${video.title}</div>
+      <div class="video-meta">${date}</div>
+    </div>
+  </div>`;
+}
+
+// ===== VIDEO MODAL =====
+function openVideo(videoId, title) {
+  document.getElementById('modal-video-title').textContent = title;
+  document.getElementById('modal-iframe').src =
+    `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+  document.getElementById('video-modal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeVideoModal() {
+  document.getElementById('video-modal').classList.remove('active');
+  document.getElementById('modal-iframe').src = '';
+  document.body.style.overflow = '';
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('video-modal')) closeVideoModal();
+}
+
+// ===== UTILS =====
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ===== INIT =====
+window.addEventListener('load', () => {
+  if (window.google?.accounts?.oauth2) {
+    initGoogleAuth();
+  } else {
+    document.querySelector('#google-signin-btn').disabled = true;
+    document.querySelector('#google-signin-btn').textContent = 'Cargando...';
+    const script = document.querySelector('script[src*="accounts.google.com"]');
+    if (script) {
+      script.addEventListener('load', initGoogleAuth);
+    }
+  }
+});
+
+window.onGsiLoaded = initGoogleAuth;
+</script>
+
+<!-- Fallback init after GSI loads -->
+<script>
+(function waitForGSI() {
+  if (window.google?.accounts?.oauth2) {
+    if (typeof initGoogleAuth === 'function') initGoogleAuth();
+  } else {
+    setTimeout(waitForGSI, 200);
+  }
+})();
+</script>
+
+</body>
+</html>
